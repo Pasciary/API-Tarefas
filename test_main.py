@@ -30,3 +30,16 @@ def test_tarefas(client):
     response = client.get("/tarefas")
     assert response.status_code == 200
     assert response.json() == [{"id": 1, "descricao": "Comprar pão"}, {"id": 2, "descricao": "Estudar Docker"}]
+
+
+# (client é a nossa fixture "panela limpa")
+def test_post_on_root_fails_correctly(client):
+    # ATUAR: Tente fazer algo ERRADO (um POST no /)
+    response = client.post("/")
+    
+    # VERIFICAR: O app falhou?
+    # Sim, mas ele falhou DO JEITO CERTO?
+    
+    # Não estamos esperando 200 (Sucesso)
+    # Estamos esperando 405 (Método Não Permitido)
+    assert response.status_code == 405
