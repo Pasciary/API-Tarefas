@@ -4,7 +4,7 @@ app = FastAPI(); # Cria o chefe principal.
 
 @app.get("/")
 def read_root():
-    return {'hellow': 'world'}
+    return {'hello': 'world'}
 
 @app.get("/tarefas")
 def get_tarefas():
