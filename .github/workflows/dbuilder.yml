@@ -21,40 +21,32 @@ jobs:
 
     # 4. AS INSTRUÇÕES (PASSOS)
     steps:
-      # Passo 1: Pega o código (como antes)
       - name: 1. Fazer o Checkout do Código
         uses: actions/checkout@v4
 
-      # Passo 2: Configurar o Python (como antes)
       - name: 2. Configurar o Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      # Passo 3: Instalar Dependências (como antes)
-      # Nota: flake8 agora será instalado porque está no requirements.txt!
+      # Passo 3: Instala pytest-cov (pois está no requirements.txt)
       - name: 3. Instalar Dependências
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      # --- COMEÇO DO NOVO PASSO DE LINTING ---
-      
-      # Passo 4 (NOVO): O "PORTÃO DO UNIFORME"
-      # Executa o "Sargento Inspetor" (flake8).
-      # Se ISTO falhar (retornar vermelho), o job inteiro PARA AQUI.
+      # Passo 4: O "PORTÃO DO UNIFORME"
       - name: 4. Executar o Linter (Flake8)
         run: flake8 . --exclude=venv
         
-      # --- FIM DO NOVO PASSO DE LINTING ---
+      # Passo 5: O "PORTÃO DA COBERTURA"
+      # (ESTA É A LINHA QUE MUDAMOS!)
+      - name: 5. Executar os Testes (Pytest com Cobertura)
+        run: pytest --cov=main --cov-fail-under=100
 
-      # Passo 5: O "PORTÃO DA LÓGICA" (antes era o 4)
-      - name: 5. Executar os Testes (Pytest)
-        run: pytest
+      # Se o LINT e os TESTES (com cobertura) passaram...
 
-      # Se o LINT e os TESTES passaram, o "Robô" continua:
-
-      # Passo 6: Fazer login no GHCR (antes era o 5)
+      # Passo 6: Fazer login no GHCR
       - name: 6. Fazer login no GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
         with:
@@ -62,7 +54,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Passo 7: Extrair Metadados (antes era o 6)
+      # Passo 7: Extrair Metadados
       - name: 7. Extrair metadados Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -72,7 +64,7 @@ jobs:
             type=raw,value=latest
             type=sha,prefix={{branch}}-
 
-      # Passo 8: Construir e Publicar a Imagem (antes era o 7)
+      # Passo 8: Construir e Publicar a Imagem
       - name: 8. Construir e Publicar a Imagem Docker
         uses: docker/build-push-action@v5
         with:
