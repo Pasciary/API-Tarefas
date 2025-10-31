@@ -1,6 +1,11 @@
 # Nome do nosso "Formulário de Ordem"
 name: 1. CI - Docker Build
 
+# ADICIONE ESTE BLOCO AQUI
+permissions:
+  contents: read
+  packages: write
+
 # 1. O GATILHO: Quando o robô deve rodar?
 on:
   push:
@@ -27,11 +32,20 @@ jobs:
       - name: 3. Configurar o Docker Buildx (o construtor moderno)
         uses: docker/setup-buildx-action@v3
 
-      # Passo 4: CONSTRUIR A IMAGEM! (O que você fez manualmente)
-      - name: 4. Construir a Imagem Docker
+      # ADICIONE ESTE NOVO PASSO DE LOGIN AQUI
+      - name: 4. Fazer login no GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Passo 5: CONSTRUIR A IMAGEM! (O que você fez manualmente)
+      - name: 5. Construir a Imagem Docker
         uses: docker/build-push-action@v5
         with:
           context: . # "Onde está o Dockerfile? (Na raiz '.') "
           file: ./Dockerfile # "Qual o nome do Dockerfile?"
-          tags: minha-api-tarefas:latest # "Qual etiqueta dar para a imagem?"
-          push: false # "NÃO envie para nenhum lugar por enquanto, apenas CONSTRUA"
+          
+          push: true 
+          tags: ghcr.io/${{ github.repository_owner }}/minha-api-tarefas:latest
