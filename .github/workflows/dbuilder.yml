@@ -1,0 +1,37 @@
+# Nome do nosso "Formulário de Ordem"
+name: 1. CI - Docker Build
+
+# 1. O GATILHO: Quando o robô deve rodar?
+on:
+  push:
+    branches: [ "main" ] # "Rode toda vez que um 'save' (push) chegar na 'main'"
+  workflow_dispatch: # "Permite que eu clique em um botão no GitHub para rodar manualmente"
+
+# 2. O TRABALHO: Qual a missão?
+jobs:
+  build: # Vamos dar o nome de "build" (construir)
+    
+    # 3. O EQUIPAMENTO: Onde o robô vai trabalhar?
+    runs-on: ubuntu-latest # "Pegue um computador Linux (Ubuntu) novinho"
+
+    # 4. AS INSTRUÇÕES: O que fazer?
+    steps:
+      # Passo 1: O robô precisa do nosso código para ler o Dockerfile
+      - name: 1. Fazer o Checkout do Código
+        uses: actions/checkout@v4 # "uses" é como "usar uma ferramenta pronta"
+
+      # Passo 2: Preparar as ferramentas de Docker (não é estritamente necessário, mas é boa prática)
+      - name: 2. Configurar o QEMU (para multi-plataforma)
+        uses: docker/setup-qemu-action@v3
+      
+      - name: 3. Configurar o Docker Buildx (o construtor moderno)
+        uses: docker/setup-buildx-action@v3
+
+      # Passo 4: CONSTRUIR A IMAGEM! (O que você fez manualmente)
+      - name: 4. Construir a Imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: . # "Onde está o Dockerfile? (Na raiz '.') "
+          file: ./Dockerfile # "Qual o nome do Dockerfile?"
+          tags: minha-api-tarefas:latest # "Qual etiqueta dar para a imagem?"
+          push: false # "NÃO envie para nenhum lugar por enquanto, apenas CONSTRUA"
